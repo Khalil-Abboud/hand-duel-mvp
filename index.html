@@ -1,3 +1,654 @@
+Khalil-Abboud
+hand-duel-mvp
+Type / to search
+Repository navigation
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+Files
+main
+t
+T
+index.html
+Breadcrumbs
+hand-duel-mvp
+/index.html
+Latest commit
+ 
+History
+History
+File metadata and controls
+Code
+Blame
+621 lines (576 loc) · 31.4 KB
+Raw
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,6 +673,7 @@
       --shadow: 0 18px 50px rgba(0, 0, 0, .34);
     }
 
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -33,6 +685,7 @@
         linear-gradient(150deg, #061021 0%, #091a30 52%, #061021 100%);
       min-height: 100vh;
     }
+
 
     button, input { font: inherit; }
     button { cursor: pointer; }
@@ -47,6 +700,7 @@
     .screen { animation: appear .22s ease-out; }
     @keyframes appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .hidden { display: none !important; }
+
 
     .home-card, .room-card { width: min(650px, 100%); margin: 8vh auto 0; padding: clamp(26px, 6vw, 54px); border: 1px solid var(--line); background: linear-gradient(145deg, rgba(18, 43, 76, .95), rgba(7, 20, 38, .96)); border-radius: 24px; box-shadow: var(--shadow); text-align: center; }
     .home-card p, .room-card p { margin: 14px auto 27px; color: var(--muted); line-height: 1.55; max-width: 470px; }
@@ -63,6 +717,7 @@
     .danger { color: #ffd9da; background: rgba(137, 42, 54, .28); border-color: rgba(255, 94, 103, .38); }
     .small-note { color: #7189a7; font-size: .78rem; margin-top: 18px; }
 
+
     .room-card { margin-top: 5vh; }
     .room-code { margin: 20px 0; padding: 13px; border: 1px dashed #47729e; border-radius: 12px; background: #081a30; color: var(--gold); font-size: 1.05rem; overflow-wrap: anywhere; }
     .room-code strong { color: var(--text); font-size: 1.18rem; }
@@ -72,6 +727,7 @@
     .join-row { display: flex; gap: 8px; max-width: 520px; margin: 18px auto 0; }
     .join-row button { min-height: 46px; background: linear-gradient(135deg, #5ce6ff, #6ea6ff); color: #03101d; border: 0; }
     .room-state { min-height: 25px; color: var(--green); font-size: .9rem; }
+
 
     .game-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin-bottom: 14px; }
     .player-box { display: flex; align-items: center; gap: 13px; min-width: 0; }
@@ -99,17 +755,26 @@
     .message.lose { color: #ff8890; font-weight: 800; }
     .message.draw { color: var(--gold); font-weight: 800; }
 
+
     .hand-panel { margin-top: 20px; }
     .opponent-hand { margin: 0 0 20px; }
     .hand-card.card-back { display: grid; place-items: center; background: linear-gradient(145deg, #163e6b, #081c37); color: rgba(119, 181, 255, .55); }
     .hand-card.card-back::before { content: "◆"; font-size: clamp(1.4rem, 4vw, 2.5rem); }
     .hand-card.card-back .card-name { display: none; }
     .hand-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 9px; color: var(--muted); font-size: .73rem; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; }
-    .cards-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-    .hand-card { min-width: 0; aspect-ratio: .72; padding: 8px; border: 1px solid #3c5e82; border-radius: 12px; background: linear-gradient(145deg, #102d4d, #0b1c34); color: var(--text); box-shadow: 0 8px 18px rgba(0,0,0,.22); transition: transform .16s, border-color .16s, opacity .16s, filter .16s; }
+    .cards-row { display: flex; justify-content: center; align-items: flex-end; min-height: clamp(126px, 20vw, 190px); padding: 12px clamp(4px, 2vw, 20px) 8px; }
+    .hand-card { flex: 0 0 clamp(78px, 13vw, 148px); width: clamp(78px, 13vw, 148px); min-width: 0; aspect-ratio: .68; margin: 0 -10px; padding: 8px; border: 1px solid #3c5e82; border-radius: 12px; background: linear-gradient(145deg, #102d4d, #0b1c34); color: var(--text); box-shadow: 0 8px 18px rgba(0,0,0,.22); transition: transform .16s, border-color .16s, opacity .16s, filter .16s; transform-origin: 50% 112%; }
+    #cardsRow .hand-card:nth-child(1), #opponentCardsRow .hand-card:nth-child(1) { transform: rotate(-16deg) translateY(11px); }
+    #cardsRow .hand-card:nth-child(2), #opponentCardsRow .hand-card:nth-child(2) { transform: rotate(-10deg) translateY(4px); }
+    #cardsRow .hand-card:nth-child(3), #opponentCardsRow .hand-card:nth-child(3) { transform: rotate(-4deg); }
+    #cardsRow .hand-card:nth-child(4), #opponentCardsRow .hand-card:nth-child(4) { transform: rotate(4deg); }
+    #cardsRow .hand-card:nth-child(5), #opponentCardsRow .hand-card:nth-child(5) { transform: rotate(10deg) translateY(4px); }
+    #cardsRow .hand-card:nth-child(6), #opponentCardsRow .hand-card:nth-child(6) { transform: rotate(16deg) translateY(11px); }
     .hand-card:hover:not(:disabled) { transform: translateY(-8px); border-color: var(--cyan); }
-    .hand-card.selected { transform: translateY(-8px); border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255, 211, 106, .28), 0 14px 25px rgba(0,0,0,.3); }
+    .hand-card.selected { transform: translateY(-22px) rotate(0deg) !important; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255, 211, 106, .28), 0 14px 25px rgba(0,0,0,.3); }
     .hand-card:disabled { opacity: .31; filter: grayscale(.65); cursor: not-allowed; }
+    @keyframes travel-to-table { from { opacity: 0; transform: translateY(72px) scale(.72) rotate(-8deg); } 65% { opacity: 1; transform: translateY(-8px) scale(1.04) rotate(2deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+    .play-card.traveling { animation: travel-to-table .72s cubic-bezier(.2,.8,.25,1) both; }
     .hand-card .gesture { display: block; font-size: clamp(1.7rem, 4vw, 2.8rem); margin: 4px 0 10px; }
     .card-name { font-size: clamp(.58rem, 1.6vw, .75rem); color: #9bb3cf; text-transform: uppercase; letter-spacing: .08em; }
     .history { min-height: 40px; display: flex; justify-content: center; gap: 8px; align-items: center; margin-top: 13px; color: #7993b0; font-size: .8rem; }
@@ -119,6 +784,7 @@
     .history-item.draw { border-color: rgba(255, 211, 106, .55); }
     .bottom-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
     .bottom-actions button { color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 9px; padding: 8px 12px; font-size: .78rem; }
+
 
     @media (max-width: 700px) {
       .app { padding: 16px 11px 26px; }
@@ -130,7 +796,7 @@
       .ready-button { width: 92px; font-size: .72rem; padding: 10px 4px; }
       .play-card { width: clamp(78px, 22vw, 108px); border-radius: 10px; box-shadow: 5px 7px 0 rgba(3,10,20,.34); }
       .table-label { font-size: .56rem; }
-      .hand-card { border-radius: 9px; padding: 4px; }
+      .hand-card { flex-basis: clamp(54px, 17vw, 92px); width: clamp(54px, 17vw, 92px); margin: 0 -8px; border-radius: 9px; padding: 4px; }
       .hand-card .gesture { margin: 3px 0 5px; }
       .card-name { letter-spacing: 0; }
       .history { overflow-x: auto; justify-content: flex-start; padding-bottom: 4px; }
@@ -150,6 +816,7 @@
       <div id="connectionStatus" class="status-pill">LOCAL MATCH</div>
     </header>
 
+
     <main>
       <section id="homeScreen" class="screen home-card">
         <div class="home-symbols" aria-hidden="true"><span>✊</span><span>🖐</span><span>✌</span></div>
@@ -161,6 +828,7 @@
         </div>
         <div class="small-note">Works in a phone or desktop browser.</div>
       </section>
+
 
       <section id="roomScreen" class="screen room-card hidden">
         <div class="brand">ONLINE MATCH</div>
@@ -185,6 +853,7 @@
         <div class="bottom-actions"><button id="roomBackButton">BACK</button></div>
       </section>
 
+
       <section id="gameScreen" class="screen hidden">
         <div class="game-header">
           <div class="player-box right">
@@ -194,10 +863,12 @@
           <div class="player-box"><div><div id="myName" class="player-name">PLAYER 1</div><div id="myScore" class="score">0</div></div></div>
         </div>
 
+
         <div class="hand-panel opponent-hand">
           <div class="hand-title"><span>Opponent cards</span><span id="opponentCardsLeft">6 remaining</span></div>
           <div id="opponentCardsRow" class="cards-row"></div>
         </div>
+
 
         <div class="game-table">
           <div class="table-card-wrap">
@@ -215,6 +886,7 @@
           </div>
         </div>
 
+
         <div class="hand-panel">
           <div class="hand-title"><span>Your cards</span><span id="cardsLeft">6 remaining</span></div>
           <div id="cardsRow" class="cards-row"></div>
@@ -224,6 +896,7 @@
       </section>
     </main>
   </div>
+
 
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script>
@@ -237,6 +910,7 @@
       config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:global.stun.twilio.com:3478" }] }
     };
 
+
     const $ = (id) => document.getElementById(id);
     let mode = "computer";
     let side = "host";
@@ -246,6 +920,7 @@
     let pendingChoice = null;
     let advanceTimer = null;
     let game = createGame();
+
 
     function createGame() {
       return {
@@ -263,6 +938,7 @@
       };
     }
 
+
     function mySide() { return mode === "computer" ? "host" : side; }
     function opponentSide() { return mySide() === "host" ? "guest" : "host"; }
     function myUsed() { return game[mySide() + "Used"]; }
@@ -274,6 +950,7 @@
     function scoreFor(player) { return player === "host" ? game.hostScore : game.guestScore; }
     function typeOf(index) { return DECK[index]; }
 
+
     function show(id) { $(id).classList.remove("hidden"); }
     function hide(id) { $(id).classList.add("hidden"); }
     function setStatus(text, online = false) {
@@ -281,11 +958,13 @@
       $("connectionStatus").classList.toggle("online", online);
     }
 
+
     function showHome() {
       hide("roomScreen"); hide("gameScreen"); show("homeScreen");
       setStatus("LOCAL MATCH");
       cleanupNetwork();
     }
+
 
     function showRoom(create) {
       hide("homeScreen"); hide("gameScreen"); show("roomScreen");
@@ -298,6 +977,7 @@
       setStatus("ONLINE SETUP", true);
     }
 
+
     function startComputer() {
       cleanupNetwork();
       mode = "computer"; side = "host"; game = createGame(); pendingChoice = null;
@@ -307,6 +987,7 @@
       setStatus("VS COMPUTER");
       render();
     }
+
 
     function openCreateRoom() {
       showRoom(true);
@@ -335,12 +1016,14 @@
       });
     }
 
+
     function openJoinRoom() {
       showRoom(false);
       const roomFromUrl = new URLSearchParams(location.search).get("room");
       if (roomFromUrl) $("roomInput").value = roomFromUrl;
       $("joinState").textContent = roomFromUrl ? "Invite detected. Press JOIN ROOM." : "";
     }
+
 
     function joinRoom() {
       let value = $("roomInput").value.trim();
@@ -356,6 +1039,7 @@
       });
       peer.on("error", () => { $("joinState").textContent = "Could not join. Check the code and try again."; });
     }
+
 
     function setupConnection() {
       connection.on("open", () => {
@@ -378,6 +1062,7 @@
       connection.on("error", () => setStatus("CONNECTION ERROR"));
     }
 
+
     function enterOnlineGame() {
       hide("homeScreen"); hide("roomScreen"); show("gameScreen");
       $("myName").textContent = side === "host" ? "PLAYER 1" : "PLAYER 2";
@@ -385,6 +1070,7 @@
       setStatus("CONNECTED", true);
       render();
     }
+
 
     function handleNetworkMessage(message) {
       if (!message || typeof message !== "object") return;
@@ -423,6 +1109,7 @@
       }
     }
 
+
     function sendState() {
       if (!connection || !connection.open || side !== "host") return;
       connection.send({
@@ -441,11 +1128,13 @@
       });
     }
 
+
     function selectCard(index) {
       if (game.phase !== "choose" || myUsed()[index]) return;
       pendingChoice = index;
       render();
     }
+
 
     function commitChoice() {
       if (pendingChoice === null || game.phase !== "choose" || myUsed()[pendingChoice]) return;
@@ -469,6 +1158,7 @@
       }
     }
 
+
     function chooseComputerCard() {
       const available = game.guestUsed.map((used, index) => used ? null : index).filter((index) => index !== null);
       const last = game.history[game.history.length - 1];
@@ -480,19 +1170,25 @@
       return available[Math.floor(Math.random() * available.length)];
     }
 
+
     function resolveLocalRound() {
       if (game.hostChoice === null || game.guestChoice === null) return;
-      showReveal();
-      setTimeout(advanceRound, 1450);
+      setTimeout(() => {
+        showReveal();
+        setTimeout(advanceRound, 1450);
+      }, 3000);
     }
 
     function resolveOnlineRound() {
       if (side !== "host" || game.hostChoice === null || game.guestChoice === null) return;
-      showReveal();
       sendState();
       render();
       clearTimeout(advanceTimer);
-      advanceTimer = setTimeout(() => { advanceRound(); sendState(); }, 1450);
+      advanceTimer = setTimeout(() => {
+        showReveal();
+        sendState();
+        advanceTimer = setTimeout(() => { advanceRound(); sendState(); }, 1450);
+      }, 3000);
     }
 
     function showReveal() {
@@ -506,6 +1202,7 @@
       game.phase = "reveal";
       render();
     }
+
 
     function advanceRound() {
       const hostIndex = game.hostChoice;
@@ -528,6 +1225,7 @@
       if (mode === "online" && side === "host") sendState();
     }
 
+
     function render() {
       const mine = mySide();
       const opponent = opponentSide();
@@ -547,22 +1245,28 @@
         <div class="hand-card card-back" aria-label="Opponent hidden card"><span class="card-name">HIDDEN</span></div>`).join("");
       document.querySelectorAll(".hand-card").forEach((button) => button.addEventListener("click", () => selectCard(Number(button.dataset.index))));
 
+
       const ready = pendingChoice !== null && game.phase === "choose";
       $("readyButton").disabled = !ready;
       $("readyButton").textContent = ready ? "READY" : game.phase === "waiting" ? "WAITING…" : finished ? "FINISHED" : "CHOOSE A CARD";
 
+
       const reveal = game.reveal;
-      setTableCard($("opponentCard"), reveal ? typeOf(opponent === "host" ? game.hostChoice : game.guestChoice) : null);
-      setTableCard($("myCard"), reveal ? typeOf(mine === "host" ? game.hostChoice : game.guestChoice) : null);
+      const myReady = game.phase === "waiting" && myChoice() !== null;
+      const opponentReady = game.phase === "waiting" && (mode === "computer" ? opponentChoice() !== null : game.opponentReady);
+      setTableCard($("opponentCard"), reveal ? typeOf(opponent === "host" ? game.hostChoice : game.guestChoice) : null, opponentReady);
+      setTableCard($("myCard"), reveal ? typeOf(mine === "host" ? game.hostChoice : game.guestChoice) : null, myReady);
       $("timer").textContent = reveal ? "✓" : finished ? "—" : game.phase === "waiting" ? "…" : "10";
       renderMessage();
       renderHistory();
     }
 
-    function setTableCard(element, type) {
-      element.className = "play-card" + (type ? ` revealed ${type}` : " back");
+
+    function setTableCard(element, type, traveling = false) {
+      element.className = "play-card" + (type ? ` revealed ${type}` : " back") + (traveling ? " traveling" : "");
       element.innerHTML = type ? `<span class="gesture">${GESTURES[type]}</span>` : "";
     }
+
 
     function renderMessage() {
       const message = $("message");
@@ -584,6 +1288,7 @@
       }
     }
 
+
     function renderHistory() {
       const mine = mySide();
       $("history").innerHTML = game.history.map((item) => {
@@ -594,16 +1299,19 @@
       }).join("");
     }
 
+
     function copyInvite() {
       const value = $("shareLink").value;
       navigator.clipboard?.writeText(value).then(() => { $("copyButton").textContent = "COPIED"; setTimeout(() => $("copyButton").textContent = "COPY LINK", 1200); }).catch(() => { $("shareLink").select(); document.execCommand("copy"); });
     }
+
 
     function cleanupNetwork() {
       clearTimeout(advanceTimer);
       try { connection?.close(); peer?.destroy(); } catch (_) {}
       connection = null; peer = null; roomId = "";
     }
+
 
     $("computerButton").addEventListener("click", startComputer);
     $("friendButton").addEventListener("click", openJoinRoom);
@@ -613,6 +1321,7 @@
     $("readyButton").addEventListener("click", commitChoice);
     $("roomBackButton").addEventListener("click", showHome);
     $("leaveButton").addEventListener("click", showHome);
+
 
     const initialRoom = new URLSearchParams(location.search).get("room");
     if (initialRoom) openJoinRoom();
