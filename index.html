@@ -598,7 +598,7 @@
   </div>
 
   <script src="assets/audio-engine.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="assets/relay-client.js"></script>
   <script>
     const TYPES = ["rock", "paper", "scissors"];
     const CARD_COUNTS = [6, 9, 12];
@@ -754,7 +754,7 @@
       $("roomCode").textContent = "Connecting…";
       $("shareLink").value = "";
       $("retryHostButton").classList.add("hidden");
-      peer = new Peer(undefined, PEER_OPTIONS);
+      peer = new RelayPeer();
       startNetworkTimeout("host");
       peer.on("open", (id) => {
         roomId = id;
@@ -804,7 +804,7 @@
       $("joinState").textContent = "Connecting to your friend…";
       $("joinButton").disabled = true;
       $("joinButton").textContent = "CONNECTING…";
-      peer = new Peer(undefined, PEER_OPTIONS);
+      peer = new RelayPeer();
       startNetworkTimeout("join");
       peer.on("open", () => {
         side = "guest"; mode = "online"; game = createGame(6); pendingChoice = null;
