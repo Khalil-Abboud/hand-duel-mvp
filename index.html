@@ -542,8 +542,8 @@
         <button class="hand-card ${pendingChoice === index ? "selected" : ""}" data-index="${index}" ${game.phase !== "choose" ? "disabled" : ""}>
           <span class="gesture">${GESTURES[type]}</span><span class="card-name">${LABELS[type]}</span>
         </button>`).join("");
-      $("opponentCardsLeft").textContent = `${opponentUsed.filter((used) => !used).length} remaining`;
-      $("opponentCardsRow").innerHTML = DECK.map((type, index) => opponentUsed[index] ? "" : `
+      $("opponentCardsLeft").textContent = `${oppUsed.filter((used) => !used).length} remaining`;
+      $("opponentCardsRow").innerHTML = DECK.map((type, index) => oppUsed[index] ? "" : `
         <div class="hand-card card-back" aria-label="Opponent hidden card"><span class="card-name">HIDDEN</span></div>`).join("");
       document.querySelectorAll(".hand-card").forEach((button) => button.addEventListener("click", () => selectCard(Number(button.dataset.index))));
 
