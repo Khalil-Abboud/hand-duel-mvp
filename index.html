@@ -529,12 +529,14 @@
         <h2 id="roomTitle">Create a room</h2>
         <p id="roomDescription">Create a room and send the invite link to one friend. No account is needed.</p>
         <div id="hostRoomContent" class="hidden">
+          <div id="hostFormat" class="small-note"></div>
           <div class="room-code">ROOM CODE<br><strong id="roomCode">Connecting…</strong></div>
           <div class="share-row">
             <input id="shareLink" readonly="" aria-label="Invite link">
             <button id="copyButton">COPY LINK</button>
           </div>
           <div id="roomState" class="room-state">Creating a private room…</div>
+          <button id="retryHostButton" class="secondary hidden" style="margin-top: 12px;">TRY AGAIN</button>
         </div>
         <div id="joinRoomContent" class="hidden">
           <div class="join-row">
@@ -542,7 +544,7 @@
             <button id="joinButton">JOIN ROOM</button>
           </div>
           <div id="joinState" class="room-state"></div>
-          <button id="createRoomButton" class="secondary" style="margin-top: 12px;">CREATE NEW ROOM</button>
+          <button id="createRoomButton" class="secondary" style="margin-top: 12px;">HOST A NEW MATCH</button>
         </div>
         <div class="bottom-actions"><button id="roomBackButton">BACK</button></div>
       </section>
@@ -604,9 +606,26 @@
     const LABELS = { rock: "ROCK", paper: "PAPER", scissors: "SCISSORS" };
     const CARD_IMAGES = { back: "assets/card_back.webp", rock: "assets/card_rock.webp", paper: "assets/card_paper.webp", scissors: "assets/card_scissors.webp" };
     const BEATS = { rock: "scissors", paper: "rock", scissors: "paper" };
+    // PeerServer handles signaling; TURN is the important relay fallback when
+    // two players are behind NATs that cannot establish a direct connection.
     const PEER_OPTIONS = {
-      debug: 0,
-      config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:global.stun.twilio.com:3478" }] }
+      host: "0.peerjs.com",
+      port: 443,
+      path: "/",
+      secure: true,
+      debug: 1,
+      config: {
+        sdpSemantics: "unified-plan",
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478" },
+          {
+            urls: ["turn:eu-0.turn.peerjs.com:3478", "turn:us-0.turn.peerjs.com:3478"],
+            username: "peerjs",
+            credential: "peerjsp"
+          }
+        ]
+      }
     };
 
     const $ = (id) => document.getElementById(id);
@@ -618,6 +637,7 @@
     let pendingChoice = null;
     let advanceTimer = null;
     let computerTimer = null;
+    let networkTimer = null;
     const flightOrigins = {};
     let selectedMatchType = "computer";
     let selectedCardCount = 6;
@@ -693,13 +713,13 @@
       hide("homeScreen"); hide("roomScreen"); hide("gameScreen"); show("formatScreen");
       $("formatDescription").textContent = type === "computer"
         ? "Choose how many cards you and the computer will have."
-        : "Choose how many cards each player will have. Your friend receives this format in the invite link.";
+        : "Choose how many cards each player will have. Your friend will receive the host's format automatically.";
     }
 
     function chooseCardCount(count) {
       selectedCardCount = count;
       if (selectedMatchType === "computer") startComputer(count);
-      else openJoinRoom();
+      else openCreateRoom();
     }
 
     function showRoom(create) {
@@ -726,17 +746,23 @@
     }
 
     function openCreateRoom() {
+      cleanupNetwork();
       game = createGame(selectedCardCount);
       showRoom(true);
+      $("hostFormat").textContent = `${selectedCardCount}-CARD MATCH · HOST`;
       $("roomState").textContent = "Creating a private room…";
       $("roomCode").textContent = "Connecting…";
+      $("shareLink").value = "";
+      $("retryHostButton").classList.add("hidden");
       peer = new Peer(undefined, PEER_OPTIONS);
+      startNetworkTimeout("host");
       peer.on("open", (id) => {
         roomId = id;
-        const link = location.origin + location.pathname + "?room=" + encodeURIComponent(id) + "&cards=" + selectedCardCount;
+        const link = location.origin + location.pathname + "?room=" + encodeURIComponent(id);
         $("roomCode").textContent = id;
         $("shareLink").value = link;
         $("roomState").textContent = "Waiting for your friend to join…";
+        startNetworkTimeout("waiting");
       });
       peer.on("connection", (conn) => {
         if (connection) { conn.close(); return; }
@@ -748,37 +774,83 @@
         setupConnection();
       });
       peer.on("error", (error) => {
-        $("roomState").textContent = "Could not create the room. Try again.";
+        clearTimeout(networkTimer);
+        $("roomState").textContent = friendlyPeerError(error, "Could not create the room.");
+        $("retryHostButton").classList.remove("hidden");
         console.error(error);
+      });
+      peer.on("disconnected", () => {
+        if (!connection?.open) {
+          $("roomState").textContent = "Connection service was interrupted. Try again.";
+          $("retryHostButton").classList.remove("hidden");
+        }
       });
     }
 
     function openJoinRoom() {
+      cleanupNetwork();
       showRoom(false);
       const roomFromUrl = new URLSearchParams(location.search).get("room");
-      const cardsFromUrl = Number(new URLSearchParams(location.search).get("cards"));
-      if (CARD_COUNTS.includes(cardsFromUrl)) selectedCardCount = cardsFromUrl;
       if (roomFromUrl) $("roomInput").value = roomFromUrl;
       $("joinState").textContent = roomFromUrl ? "Invite detected. Press JOIN ROOM." : "";
     }
 
     function joinRoom() {
+      cleanupNetwork();
       let value = $("roomInput").value.trim();
       if (!value) { $("joinState").textContent = "Paste an invite link or room code first."; return; }
       try { if (value.includes("?")) value = new URL(value).searchParams.get("room") || value; } catch (_) {}
       if (!value) { $("joinState").textContent = "This invite link is not valid."; return; }
       $("joinState").textContent = "Connecting to your friend…";
+      $("joinButton").disabled = true;
+      $("joinButton").textContent = "CONNECTING…";
       peer = new Peer(undefined, PEER_OPTIONS);
+      startNetworkTimeout("join");
       peer.on("open", () => {
-        side = "guest"; mode = "online"; game = createGame(selectedCardCount); pendingChoice = null;
-        connection = peer.connect(value, { reliable: true });
+        side = "guest"; mode = "online"; game = createGame(6); pendingChoice = null;
+        connection = peer.connect(value, { reliable: true, serialization: "json" });
         setupConnection();
       });
-      peer.on("error", () => { $("joinState").textContent = "Could not join. Check the code and try again."; });
+      peer.on("error", (error) => failJoin(friendlyPeerError(error, "Could not join. Check the code and try again.")));
+    }
+
+    function friendlyPeerError(error, fallback) {
+      if (error?.type === "peer-unavailable") return "Room not found. Check the code, and make sure the host is still waiting.";
+      if (error?.type === "network" || error?.type === "server-error" || error?.type === "socket-error") return "The connection service is unavailable. Please try again.";
+      return fallback;
+    }
+
+    function startNetworkTimeout(stage) {
+      clearTimeout(networkTimer);
+      const delay = stage === "waiting" ? 90000 : 20000;
+      networkTimer = setTimeout(() => {
+        if (connection?.open) return;
+        if (stage === "join") {
+          failJoin("The connection took too long. Check the code and try again.");
+        } else if (stage === "host") {
+          $("roomState").textContent = "The room service took too long. Try again.";
+          $("retryHostButton").classList.remove("hidden");
+        } else {
+          $("roomState").textContent = "Still waiting. Ask your friend to enter the code, or create a new room.";
+          $("retryHostButton").classList.remove("hidden");
+        }
+      }, delay);
+    }
+
+    function failJoin(message) {
+      clearTimeout(networkTimer);
+      $("joinState").textContent = message;
+      $("joinButton").disabled = false;
+      $("joinButton").textContent = "TRY AGAIN";
+      try { connection?.close(); peer?.destroy(); } catch (_) {}
+      connection = null; peer = null;
     }
 
     function setupConnection() {
       connection.on("open", () => {
+        clearTimeout(networkTimer);
+        $("joinButton").disabled = false;
+        $("joinButton").textContent = "JOIN ROOM";
         if (side === "host") {
           $("roomState").textContent = "Friend connected. Starting match…";
           sendState();
@@ -1127,15 +1199,17 @@
     function cleanupNetwork() {
       clearTimeout(advanceTimer);
       clearTimeout(computerTimer);
+      clearTimeout(networkTimer);
       try { connection?.close(); peer?.destroy(); } catch (_) {}
       connection = null; peer = null; roomId = "";
     }
 
     $("computerButton").addEventListener("click", () => chooseMatchType("computer"));
-    $("friendButton").addEventListener("click", () => chooseMatchType("online"));
+    $("friendButton").addEventListener("click", openJoinRoom);
     document.querySelectorAll("[data-card-count]").forEach((button) => button.addEventListener("click", () => chooseCardCount(Number(button.dataset.cardCount))));
-    $("formatBackButton").addEventListener("click", showHome);
-    $("createRoomButton").addEventListener("click", openCreateRoom);
+    $("formatBackButton").addEventListener("click", () => selectedMatchType === "online" ? openJoinRoom() : showHome());
+    $("createRoomButton").addEventListener("click", () => chooseMatchType("online"));
+    $("retryHostButton").addEventListener("click", openCreateRoom);
     $("joinButton").addEventListener("click", joinRoom);
     $("copyButton").addEventListener("click", copyInvite);
     $("roomBackButton").addEventListener("click", showHome);
