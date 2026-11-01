@@ -100,6 +100,10 @@
     .message.draw { color: var(--gold); font-weight: 800; }
 
     .hand-panel { margin-top: 20px; }
+    .opponent-hand { margin: 0 0 20px; }
+    .hand-card.card-back { display: grid; place-items: center; background: linear-gradient(145deg, #163e6b, #081c37); color: rgba(119, 181, 255, .55); }
+    .hand-card.card-back::before { content: "◆"; font-size: clamp(1.4rem, 4vw, 2.5rem); }
+    .hand-card.card-back .card-name { display: none; }
     .hand-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 9px; color: var(--muted); font-size: .73rem; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; }
     .cards-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
     .hand-card { min-width: 0; aspect-ratio: .72; padding: 8px; border: 1px solid #3c5e82; border-radius: 12px; background: linear-gradient(145deg, #102d4d, #0b1c34); color: var(--text); box-shadow: 0 8px 18px rgba(0,0,0,.22); transition: transform .16s, border-color .16s, opacity .16s, filter .16s; }
@@ -188,6 +192,11 @@
           </div>
           <div id="roundLabel" class="round-label">ROUND 1 / 6</div>
           <div class="player-box"><div><div id="myName" class="player-name">PLAYER 1</div><div id="myScore" class="score">0</div></div></div>
+        </div>
+
+        <div class="hand-panel opponent-hand">
+          <div class="hand-title"><span>Opponent cards</span><span id="opponentCardsLeft">6 remaining</span></div>
+          <div id="opponentCardsRow" class="cards-row"></div>
         </div>
 
         <div class="game-table">
@@ -383,6 +392,7 @@
       if (message.type === "choice" && side === "host") {
         if (!["choose", "waiting"].includes(game.phase) || game.guestChoice !== null || game.guestUsed[message.index] || !Number.isInteger(message.index)) return;
         game.guestChoice = message.index;
+        game.guestUsed[message.index] = true;
         if (game.hostChoice !== null) resolveOnlineRound(); else sendState();
         render();
         return;
@@ -440,10 +450,12 @@
     function commitChoice() {
       if (pendingChoice === null || game.phase !== "choose" || myUsed()[pendingChoice]) return;
       setMyChoice(pendingChoice);
+      myUsed()[pendingChoice] = true;
       pendingChoice = null;
       game.phase = "waiting";
       if (mode === "computer") {
         game.guestChoice = chooseComputerCard();
+        game.guestUsed[game.guestChoice] = true;
         render();
         setTimeout(resolveLocalRound, 420);
       } else if (side === "guest") {
@@ -526,10 +538,13 @@
       $("opponentScore").textContent = scoreFor(opponent);
       $("roundLabel").textContent = finished ? "MATCH COMPLETE" : `ROUND ${game.round} / 6`;
       $("cardsLeft").textContent = `${mineUsed.filter((used) => !used).length} remaining`;
-      $("cardsRow").innerHTML = DECK.map((type, index) => `
-        <button class="hand-card ${pendingChoice === index ? "selected" : ""}" data-index="${index}" ${mineUsed[index] || game.phase !== "choose" ? "disabled" : ""}>
+      $("cardsRow").innerHTML = DECK.map((type, index) => mineUsed[index] ? "" : `
+        <button class="hand-card ${pendingChoice === index ? "selected" : ""}" data-index="${index}" ${game.phase !== "choose" ? "disabled" : ""}>
           <span class="gesture">${GESTURES[type]}</span><span class="card-name">${LABELS[type]}</span>
         </button>`).join("");
+      $("opponentCardsLeft").textContent = `${opponentUsed.filter((used) => !used).length} remaining`;
+      $("opponentCardsRow").innerHTML = DECK.map((type, index) => opponentUsed[index] ? "" : `
+        <div class="hand-card card-back" aria-label="Opponent hidden card"><span class="card-name">HIDDEN</span></div>`).join("");
       document.querySelectorAll(".hand-card").forEach((button) => button.addEventListener("click", () => selectCard(Number(button.dataset.index))));
 
       const ready = pendingChoice !== null && game.phase === "choose";
