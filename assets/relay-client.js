@@ -30,10 +30,14 @@ class RelayPeer {
   }
   makeChannel() {
     const owner = this;
+    let sends = Promise.resolve();
     return { open: false, events: {},
       on(name, fn) { (this.events[name] ||= []).push(fn); return this; },
       emit(name, data) { for (const fn of this.events[name] || []) fn(data); },
-      send(data) { owner.request('/send', {room: owner.id, token: owner.token, data}).catch(error => this.emit('error', error)); },
+      send(data) {
+        const packet = {room: owner.id, token: owner.token, data: structuredClone(data)};
+        sends = sends.then(() => owner.request('/send', packet)).catch(error => this.emit('error', error));
+      },
       close() { this.open = false; this.emit('close'); }
     };
   }
